@@ -10,12 +10,10 @@ using UnityEditor;
 
 public class ControlMeshMono : MonoBehaviour
 {
-    public bool visible = true;
+    public bool visible_gizmo = true;
     ControlMesh controlMesh;
     public bool initControlMesh = false;
-
-    [SerializeField]
-    public float w1, w2;
+    public float w1 = 0.1f, w2 = 0.1f;
 
     // Update is called once per frame
     void OnGUI()
@@ -37,7 +35,7 @@ public class ControlMeshMono : MonoBehaviour
  
     void OnDrawGizmos()
     {
-        if(visible && initControlMesh && controlMesh!=null)
+        if(visible_gizmo && initControlMesh && controlMesh!=null)
         {
             var mesh = GetComponent<MeshFilter>().sharedMesh;
             var vertices = mesh.vertices;

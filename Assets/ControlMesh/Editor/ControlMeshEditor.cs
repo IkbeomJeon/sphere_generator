@@ -16,15 +16,10 @@ public class ControlMeshEditor : Editor
     {
         base.OnInspectorGUI();
 
-        if (GUILayout.Button("Init"))
+        if (GUILayout.Button("Init param"))
         {
             //Debug.Log(mono.GetComponent<MeshFilter>().mesh.vertices.Length);
-            
             mono.InitControlMesh();
-        }
-        if (GUILayout.Button("Visible"))
-        {
-            mono.visible = !mono.visible;
         }
         if (GUILayout.Button("Update param"))
         {
