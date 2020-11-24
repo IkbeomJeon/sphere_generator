@@ -67,28 +67,11 @@ public class ControlMeshMono : MonoBehaviour
         controlMesh = new ControlMesh(GetComponent<MeshFilter>().sharedMesh);
         initControlMesh = true;
     }
-    public void UpdateMesh(float w1, float w2)
+    public void UpdateMeshTest(float w1, float w2)
     {
         if (initControlMesh && controlMesh != null)
         {
-            var mesh = GetComponent<MeshFilter>().sharedMesh;
-            var vertices = mesh.vertices;
-
-            Debug.Assert(mesh.vertexCount == controlMesh.vertexParms.Count);
-
-            Vector3[] newVertices = new Vector3[mesh.vertexCount];
-
-            //for (int i = 0; i < vertices.Length; i++)
-            foreach (var vertex_param in controlMesh.vertexParms)
-            {
-                int vid = vertex_param.Key;
-                VertexParm param = vertex_param.Value;
-
-                var vec_sum = param.U1 * w1 + param.U2 * w2;
-
-                newVertices[vid] = vertices[vid] + vec_sum;
-            }
-            mesh.vertices = newVertices;
+            controlMesh.UpdateMeshTest(w1, w2);
         }
 
     }

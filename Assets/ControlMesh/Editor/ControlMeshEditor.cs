@@ -23,7 +23,7 @@ public class ControlMeshEditor : Editor
         }
         if (GUILayout.Button("Update param"))
         {
-            mono.UpdateMesh(mono.w1, mono.w2);
+            mono.UpdateMeshTest(mono.w1, mono.w2);
         }
     }
 }

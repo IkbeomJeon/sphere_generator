@@ -18,11 +18,32 @@ public class VertexParm
     public Vector3 U1 { get => _u1; }
     public Vector3 U2 { get => _u2; }
 }
+public class Face
+{
+    int _face_id;
+    HashSet<int> _indices; //The length must be three.
+
+    public Face(int face_id, int v1_id, int v2_id, int v3_id)
+    {
+        _face_id = face_id;
+        _indices = new HashSet<int>();
+        AddVertexID(v1_id);
+        AddVertexID(v2_id);
+        AddVertexID(v3_id);
+    }
+    void AddVertexID(int vertex_id)
+    {
+        bool ret = _indices.Add(vertex_id);
+        Debug.Assert(ret, "Invalid vertex_id");
+    }
+}
+
 public class ControlMesh
 {
     Mesh mesh;
 
     public Dictionary<int, VertexParm> vertexParms { get; } = new Dictionary<int, VertexParm>();
+    public Dictionary<int, Face> faces { get; } = new Dictionary<int, Face>();
 
     //VertexParm[] vertexParms;
 
@@ -40,7 +61,6 @@ public class ControlMesh
         Debug.Assert(indices.Length % 3 == 0, "Invalid mesh");
 
         for (int face_id = 0; face_id < faceCount; face_id++)
-        //for(int i = 0; i<indices.Length; i++)
         {
             int v1_id = indices[face_id * 3 + 0];
             int v2_id = indices[face_id * 3 + 1];
@@ -49,7 +69,9 @@ public class ControlMesh
             InitVertexParam(face_id, v1_id);
             InitVertexParam(face_id, v2_id);
             InitVertexParam(face_id, v3_id);
-            //InitVertexParam(i, v1_id);
+
+            var newFace = new Face(face_id, v1_id, v2_id, v3_id);
+            faces.Add(face_id, newFace);
         }
         Debug.Assert(vertexParms.Count == mesh.vertices.Length, "Fail to make control mesh.");
     }
@@ -59,7 +81,6 @@ public class ControlMesh
         if (vertexParms.ContainsKey(vertex_id))
             return;
 
-        var vertex = mesh.vertices[vertex_id];
         var tangent = mesh.tangents[vertex_id];
         var normal = mesh.normals[vertex_id];
 
@@ -67,17 +88,32 @@ public class ControlMesh
         var u1 = Vector3.Cross(tan3, normal).normalized * tangent.w;
         var u2 = Vector3.Cross(u1, normal).normalized;
 
-        var angle1 = Vector3.Angle(u1, normal) - 90;
-        var angle2 = Vector3.Angle(u2, normal) - 90;
-        var angle3 = Vector3.Angle(u1, u2) - 90;
+        float angle1 = Vector3.Angle(u1, normal) - 90;
+        float angle2 = Vector3.Angle(u2, normal) - 90;
+        float angle3 = Vector3.Angle(u1, u2) - 90;
 
         Debug.Assert(angle1 <= float.Epsilon, angle1.ToString());
         Debug.Assert(angle2 <= float.Epsilon, angle2.ToString());
         Debug.Assert(angle3 <= float.Epsilon, angle3.ToString());
 
-
         var parm = new VertexParm(vertex_id, face_id, u1, u2);
         vertexParms.Add(vertex_id, parm);
     }
+    public void UpdateMeshTest(float w1, float w2)
+    {
+        var vertices = mesh.vertices;
+        Debug.Assert(mesh.vertexCount == vertexParms.Count);
+        Vector3[] newVertices = new Vector3[mesh.vertexCount];
 
+        foreach (var vertex_param in vertexParms)
+        {
+            int vid = vertex_param.Key;
+            VertexParm param = vertex_param.Value;
+
+            var vec_sum = param.U1 * w1 + param.U2 * w2;
+
+            newVertices[vid] = vertices[vid] + vec_sum;
+        }
+        mesh.vertices = newVertices;
+    }
 }
