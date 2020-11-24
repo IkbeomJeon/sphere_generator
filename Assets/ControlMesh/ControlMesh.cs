@@ -75,7 +75,7 @@ public class ControlMesh
     }
 
     Mesh mesh;
-    Dictionary<int, VertexParm> vertexParms { get; } = new Dictionary<int, VertexParm>();
+    public Dictionary<int, VertexParm> vertexParms { get; } = new Dictionary<int, VertexParm>();
     Dictionary<int, Face> faces { get; } = new Dictionary<int, Face>();
 }
 public class VertexParm
