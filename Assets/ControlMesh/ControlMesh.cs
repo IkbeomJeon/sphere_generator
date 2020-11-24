@@ -2,56 +2,30 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class VertexParm
-{
-    int _vertex_id;
-    int _face_id;
-    Vector3 _u1, _u2;
-    public VertexParm(int vertex_id, int face_id, Vector3 u1, Vector3 u2)
-    {
-        _vertex_id = vertex_id;
-        _face_id = face_id;
-        _u1 = u1;
-        _u2 = u2;
-    }
-
-    public Vector3 U1 { get => _u1; }
-    public Vector3 U2 { get => _u2; }
-}
-public class Face
-{
-    int _face_id;
-    HashSet<int> _indices; //The length must be three.
-
-    public Face(int face_id, int v1_id, int v2_id, int v3_id)
-    {
-        _face_id = face_id;
-        _indices = new HashSet<int>();
-        AddVertexID(v1_id);
-        AddVertexID(v2_id);
-        AddVertexID(v3_id);
-    }
-    void AddVertexID(int vertex_id)
-    {
-        bool ret = _indices.Add(vertex_id);
-        Debug.Assert(ret, "Invalid vertex_id");
-    }
-}
-
 public class ControlMesh
 {
-    Mesh mesh;
-
-    public Dictionary<int, VertexParm> vertexParms { get; } = new Dictionary<int, VertexParm>();
-    public Dictionary<int, Face> faces { get; } = new Dictionary<int, Face>();
-
-    //VertexParm[] vertexParms;
-
     public ControlMesh(Mesh mesh)
     {
         this.mesh = mesh;
         //vertexParms = new VertexParm[mesh.vertexCount];
         MakeControlMesh(mesh);
+    }
+    public void UpdateMeshTest(float w1, float w2)
+    {
+        var vertices = mesh.vertices;
+        Debug.Assert(mesh.vertexCount == vertexParms.Count);
+        Vector3[] newVertices = new Vector3[mesh.vertexCount];
+
+        foreach (var vertex_param in vertexParms)
+        {
+            int vid = vertex_param.Key;
+            VertexParm param = vertex_param.Value;
+
+            var vec_sum = param.U1 * w1 + param.U2 * w2;
+
+            newVertices[vid] = vertices[vid] + vec_sum;
+        }
+        mesh.vertices = newVertices;
     }
     void MakeControlMesh(Mesh mesh)
     {
@@ -99,21 +73,43 @@ public class ControlMesh
         var parm = new VertexParm(vertex_id, face_id, u1, u2);
         vertexParms.Add(vertex_id, parm);
     }
-    public void UpdateMeshTest(float w1, float w2)
+
+    Mesh mesh;
+    Dictionary<int, VertexParm> vertexParms { get; } = new Dictionary<int, VertexParm>();
+    Dictionary<int, Face> faces { get; } = new Dictionary<int, Face>();
+}
+public class VertexParm
+{
+    int _vertex_id;
+    int _face_id;
+    Vector3 _u1, _u2;
+    public VertexParm(int vertex_id, int face_id, Vector3 u1, Vector3 u2)
     {
-        var vertices = mesh.vertices;
-        Debug.Assert(mesh.vertexCount == vertexParms.Count);
-        Vector3[] newVertices = new Vector3[mesh.vertexCount];
+        _vertex_id = vertex_id;
+        _face_id = face_id;
+        _u1 = u1;
+        _u2 = u2;
+    }
 
-        foreach (var vertex_param in vertexParms)
-        {
-            int vid = vertex_param.Key;
-            VertexParm param = vertex_param.Value;
+    public Vector3 U1 { get => _u1; }
+    public Vector3 U2 { get => _u2; }
+}
+public class Face
+{
+    int _face_id;
+    HashSet<int> _indices; //The length must be three.
 
-            var vec_sum = param.U1 * w1 + param.U2 * w2;
-
-            newVertices[vid] = vertices[vid] + vec_sum;
-        }
-        mesh.vertices = newVertices;
+    public Face(int face_id, int v1_id, int v2_id, int v3_id)
+    {
+        _face_id = face_id;
+        _indices = new HashSet<int>();
+        AddVertexID(v1_id);
+        AddVertexID(v2_id);
+        AddVertexID(v3_id);
+    }
+    void AddVertexID(int vertex_id)
+    {
+        bool ret = _indices.Add(vertex_id);
+        Debug.Assert(ret, "Invalid vertex_id");
     }
 }
